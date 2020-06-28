@@ -160,4 +160,28 @@ bool ends_with(const std::string &suffix, const std::string &str) noexcept;
 
 bool is_executable_filename(const std::string &filename) noexcept;
 
+// extremely fast sine and cosine approximations good to roughly four digits
+// of accuracy (suitable for 16-bit audio calculations).
+// Credit: Bhaskara I (c. 600 – c. 680) sine approximation formula
+constexpr float fast_sin(float rad)
+{
+	constexpr auto pi_f = static_cast<float>(M_PI);
+	rad /= 2 * pi_f;
+	rad -= static_cast<int>(rad);
+
+	if (rad <= 0.5f) {
+		const float t = 2 * rad * (2 * rad - 1);
+		return (pi_f * t) / ((pi_f - 4) * t - 1);
+	} else {
+		const float t = 2 * (1 - rad) * (1 - 2 * rad);
+		return -(pi_f * t) / ((pi_f - 4) * t - 1);
+	}
+}
+
+constexpr float fast_cos(float rad)
+{
+	constexpr auto pi_f = static_cast<float>(M_PI);
+	return fast_sin(rad + 0.5f * pi_f);
+}
+
 #endif
